@@ -3,6 +3,8 @@ import { store } from './store.js';
 import { SkyStage } from './canvas/stage.js';
 import { SkyManager } from './canvas/skyManager.js';
 import { PlanetRenderer } from './canvas/planetRenderer.js';
+import { B612Renderer } from './canvas/b612Renderer.js';
+import { MonoplaneEngine } from './canvas/monoplane.js';
 
 class App {
   constructor() {
@@ -10,17 +12,23 @@ class App {
   }
 
   async init() {
+    // 1. Initialize Dexie Database
     await initDatabase();
 
-    // Initialize Canvas Stage & Sky Environment
+    // 2. Setup Stage and Sky Environment
     this.skyStage = new SkyStage('canvas-container');
     this.skyManager = new SkyManager(this.skyStage);
     SkyManager.updateSkyMoodByTime();
 
-    // Render Procedural Planets
+    // 3. Initialize Monoplane Focus Engine
+    this.monoplaneEngine = new MonoplaneEngine(this.skyStage);
+
+    // 4. Render World Planets & Asteroid B-612
     await this.renderWorldPlanets();
 
+    // 5. HUD Events
     this.setupHUDListeners();
+
     store.publish('app:ready', { db });
   }
 
@@ -28,42 +36,45 @@ class App {
     const planets = await db.planets.toArray();
     const tasks = await db.tasks.toArray();
 
+    const centerX = this.skyStage.worldSize / 2;
+    const centerY = this.skyStage.worldSize / 2;
+
     planets.forEach((planet, index) => {
-      // Calculate planet workload stats
       const planetTasks = tasks.filter(t => t.planetId === planet.id && !t.completed);
+      const overdueTasks = planetTasks.filter(t => t.deadline && new Date(t.deadline) < new Date()).length;
       const highUrgent = planetTasks.filter(t => t.priority === 'high').length;
 
-      // Arrange planets in a spacious celestial circle around center (B-612)
-      const centerX = this.skyStage.worldSize / 2;
-      const centerY = this.skyStage.worldSize / 2;
+      let planetNode;
 
-      let x = centerX;
-      let y = centerY;
+      if (planet.id === 'b612' || planet.archetype === 'home') {
+        planet.x = centerX;
+        planet.y = centerY;
 
-      if (index > 0) {
+        planetNode = B612Renderer.createB612Node(planet, {
+          overdue: overdueTasks,
+          completedStreak: 3
+        });
+      } else {
         const angle = ((index - 1) * (360 / Math.max(1, planets.length - 1))) * (Math.PI / 180);
-        const radius = 380;
-        x = centerX + radius * Math.cos(angle);
-        y = centerY + radius * Math.sin(angle);
+        const orbitRadius = 420;
+
+        planet.x = centerX + orbitRadius * Math.cos(angle);
+        planet.y = centerY + orbitRadius * Math.sin(angle);
+
+        planetNode = PlanetRenderer.createPlanetNode(planet, {
+          total: planetTasks.length,
+          highUrgent
+        });
       }
-
-      planet.x = x;
-      planet.y = y;
-
-      const planetNode = PlanetRenderer.createPlanetNode(planet, {
-        total: planetTasks.length,
-        highUrgent
-      });
 
       this.skyStage.worldLayer.add(planetNode);
     });
 
     this.skyStage.worldLayer.batchDraw();
 
-    // Handle Planet Selection & Camera Zoom Event
+    // Planet Selection & Camera Target
     store.subscribe('planet:selected', (planetData) => {
       this.skyStage.centerOnCoordinates(planetData.x, planetData.y, 2.0, () => {
-        // Open Slide-out Parchment Drawer
         const drawer = document.getElementById('drawer-container');
         const title = document.getElementById('drawer-planet-title');
         if (title) title.textContent = planetData.name;
@@ -79,7 +90,7 @@ class App {
 
     viewToggleBtn?.addEventListener('click', () => {
       const isCanvasActive = canvasContainer.classList.contains('view-active');
-      
+
       if (isCanvasActive) {
         canvasContainer.classList.remove('view-active');
         canvasContainer.classList.add('view-hidden');
