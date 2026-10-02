@@ -1,0 +1,146 @@
+/* HUD Overlay Container */
+#hud-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none; /* Let clicks pass through empty space to canvas */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+/* Make HUD elements clickable */
+.hud-topbar, .hud-controls, #drawer-container {
+  pointer-events: auto;
+}
+
+/* Top Gauge Bar */
+.hud-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.hud-gauge {
+  background: rgba(19, 25, 43, 0.75);
+  border: 1px solid var(--antique-brass);
+  border-radius: 6px;
+  padding: 8px 16px;
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gauge-label {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--sahara-sand);
+}
+
+.gauge-value {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--aged-vellum);
+}
+
+/* Bottom Flight Control Wheel */
+.hud-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* Button Styling */
+.hud-btn {
+  background: var(--aged-vellum);
+  border: 1px solid var(--antique-brass);
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: var(--ink-black);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  filter: var(--filter-paper-edge);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.hud-btn:hover {
+  transform: translateY(-2px);
+  background-color: #FFFDF7;
+}
+
+.hud-btn:active {
+  transform: translateY(1px);
+}
+
+.hud-btn-primary {
+  background: var(--golden-starlight);
+  border-color: var(--antique-brass);
+  padding: 12px 28px;
+  font-size: 1rem;
+}
+
+.hud-btn-round {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  padding: 0;
+  justify-content: center;
+}
+
+/* Slide-Out Parchment Drawer (Desktop) */
+#drawer-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 420px;
+  max-width: 90vw;
+  height: 100%;
+  background: var(--aged-vellum);
+  border-left: 2px solid var(--antique-brass);
+  box-shadow: -4px 0 25px rgba(0, 0, 0, 0.4);
+  z-index: 20;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 32px 24px;
+  overflow-y: auto;
+}
+
+.drawer-hidden {
+  transform: translateX(100%);
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(140, 109, 70, 0.3);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.drawer-title {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  color: var(--ink-black);
+}
+
+.drawer-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--antique-brass);
+}
