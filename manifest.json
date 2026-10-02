@@ -1,0 +1,16 @@
+{
+  "name": "The Aviator's Celestial Planner",
+  "short_name": "CelestialPlanner",
+  "description": "A Little Prince themed study planner hosted on GitHub Pages",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#13192B",
+  "theme_color": "#13192B",
+  "icons": [
+    {
+      "src": "assets/icons/b612.webp",
+      "sizes": "192x192",
+      "type": "image/webp"
+    }
+  ]
+}
