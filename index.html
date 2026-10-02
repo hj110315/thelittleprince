@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Aviator's Celestial Planner</title>
+  
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#13192B">
+
+  <!-- Fonts: Cormorant Garamond (Titles), Nunito (Body), Space Mono (Gauges), Caveat (Notes) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Core Libraries CDN -->
+  <script src="https://unpkg.com/dexie@3.2.4/dist/dexie.js"></script>
+  <script src="https://unpkg.com/konva@9.2.0/konva.min.js"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/hud.css">
+</head>
+<body class="sky-sunset">
+
+  <!-- Hidden SVG Filter for Rough Watercolor Paper Edges -->
+  <svg style="display:none;" aria-hidden="true">
+    <defs>
+      <filter id="watercolor-paper-edge">
+        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- 2D Sky Map Canvas Container (Desktop Default) -->
+  <div id="canvas-container" class="view-active"></div>
+
+  <!-- Mobile Parchment Journal Container (Mobile Default / Responsive Fallback) -->
+  <div id="journal-container" class="view-hidden">
+    <header class="journal-header">
+      <h1 class="journal-title">Captain's Journal</h1>
+      <nav id="journal-planet-tabs" class="journal-tabs"></nav>
+    </header>
+    <main id="journal-task-list" class="journal-content"></main>
+  </div>
+
+  <!-- Aviator HUD Overlay Layer -->
+  <div id="hud-container">
+    <!-- Top Instrument Gauge Bar -->
+    <header class="hud-topbar">
+      <div class="hud-gauge">
+        <span class="gauge-label">Focus Time</span>
+        <span id="gauge-focus-time" class="gauge-value">00:00</span>
+      </div>
+      <div class="hud-gauge">
+        <span class="gauge-label">Flight Streak</span>
+        <span id="gauge-streak" class="gauge-value">0 Days</span>
+      </div>
+      <div class="hud-actions">
+        <button id="btn-view-toggle" class="hud-btn" title="Toggle Sky Map / Journal View">
+          <span class="btn-icon">🌌</span>
+          <span class="btn-text">Journal</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Bottom Flight Control Panel -->
+    <footer class="hud-controls">
+      <button id="btn-home-b612" class="hud-btn hud-btn-round" title="Return to Asteroid B-612">
+        <span class="btn-icon">🌹</span>
+      </button>
+      
+      <button id="btn-launch-flight" class="hud-btn hud-btn-primary" title="Launch Focus Timer">
+        <span class="btn-icon">✈️</span>
+        <span class="btn-text">Launch Flight</span>
+      </button>
+
+      <button id="btn-sky-compass" class="hud-btn hud-btn-round" title="Reset Camera Zoom">
+        <span class="btn-icon">🧭</span>
+      </button>
+    </footer>
+  </div>
+
+  <!-- Slide-Out Parchment Drawer (Desktop Planet Inspection) -->
+  <aside id="drawer-container" class="drawer-hidden">
+    <div class="drawer-header">
+      <h2 id="drawer-planet-title" class="drawer-title">Planet Name</h2>
+      <button id="btn-close-drawer" class="drawer-close">&times;</button>
+    </div>
+    <div id="drawer-content" class="drawer-body">
+      <!-- Active Task List & Form Rendered Here -->
+    </div>
+  </aside>
+
+  <!-- JavaScript Entry Point -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
