@@ -5,14 +5,17 @@ import { SkyManager } from './canvas/skyManager.js';
 import { PlanetRenderer } from './canvas/planetRenderer.js';
 import { B612Renderer } from './canvas/b612Renderer.js';
 import { MonoplaneEngine } from './canvas/monoplane.js';
+import { PlanetManager } from './planetManager.js';
+import { TaskManager } from './taskManager.js';
 
 class App {
   constructor() {
+    this.activePlanetId = 'b612';
     this.init();
   }
 
   async init() {
-    // 1. Initialize Dexie Database
+    // 1. Initialize Dexie IndexedDB
     await initDatabase();
 
     // 2. Setup Stage and Sky Environment
@@ -26,13 +29,16 @@ class App {
     // 4. Render World Planets & Asteroid B-612
     await this.renderWorldPlanets();
 
-    // 5. HUD Events
+    // 5. Setup Store Event Subscriptions & UI Listeners
+    this.setupStoreSubscriptions();
     this.setupHUDListeners();
 
     store.publish('app:ready', { db });
   }
 
   async renderWorldPlanets() {
+    this.skyStage.worldLayer.destroyChildren();
+
     const planets = await db.planets.toArray();
     const tasks = await db.tasks.toArray();
 
@@ -40,7 +46,7 @@ class App {
     const centerY = this.skyStage.worldSize / 2;
 
     planets.forEach((planet, index) => {
-      const planetTasks = tasks.filter(t => t.planetId === planet.id && !t.completed);
+      const planetTasks = tasks.filter(t => t.planetId === planet.id && t.completed === 0);
       const overdueTasks = planetTasks.filter(t => t.deadline && new Date(t.deadline) < new Date()).length;
       const highUrgent = planetTasks.filter(t => t.priority === 'high').length;
 
@@ -52,7 +58,7 @@ class App {
 
         planetNode = B612Renderer.createB612Node(planet, {
           overdue: overdueTasks,
-          completedStreak: 3
+          completedStreak: tasks.filter(t => t.completed === 1).length
         });
       } else {
         const angle = ((index - 1) * (360 / Math.max(1, planets.length - 1))) * (Math.PI / 180);
@@ -71,15 +77,41 @@ class App {
     });
 
     this.skyStage.worldLayer.batchDraw();
+  }
 
+  setupStoreSubscriptions() {
     // Planet Selection & Camera Target
-    store.subscribe('planet:selected', (planetData) => {
-      this.skyStage.centerOnCoordinates(planetData.x, planetData.y, 2.0, () => {
+    store.subscribe('planet:selected', async (planetData) => {
+      this.activePlanetId = planetData.id;
+      this.skyStage.centerOnCoordinates(planetData.x, planetData.y, 2.0, async () => {
         const drawer = document.getElementById('drawer-container');
         const title = document.getElementById('drawer-planet-title');
         if (title) title.textContent = planetData.name;
+
+        await TaskManager.renderDrawerContent(planetData.id);
         drawer?.classList.remove('drawer-hidden');
       });
+    });
+
+    // Reactive Refresh on Data Changes
+    const refreshUI = async () => {
+      await this.renderWorldPlanets();
+      if (this.activePlanetId) {
+        await TaskManager.renderDrawerContent(this.activePlanetId);
+      }
+      await TaskManager.renderJournalView();
+    };
+
+    store.subscribe('task:created', refreshUI);
+    store.subscribe('task:updated', refreshUI);
+    store.subscribe('task:deleted', refreshUI);
+    store.subscribe('planet:created', refreshUI);
+    store.subscribe('planet:deleted', refreshUI);
+
+    store.subscribe('view:changed', (viewMode) => {
+      if (viewMode === 'journal') {
+        TaskManager.renderJournalView();
+      }
     });
   }
 
