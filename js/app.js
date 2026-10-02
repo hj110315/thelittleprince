@@ -7,6 +7,7 @@ import { B612Renderer } from './canvas/b612Renderer.js';
 import { MonoplaneEngine } from './canvas/monoplane.js';
 import { PlanetManager } from './planetManager.js';
 import { TaskManager } from './taskManager.js';
+import { AudioManager } from './audioManager.js';
 
 class App {
   constructor() {
@@ -15,21 +16,24 @@ class App {
   }
 
   async init() {
-    // 1. Initialize Dexie IndexedDB
+    // 1. Initialize Dexie Database
     await initDatabase();
 
-    // 2. Setup Stage and Sky Environment
+    // 2. Initialize Audio Synthesizer
+    this.audioManager = new AudioManager();
+
+    // 3. Setup Stage and Sky Environment
     this.skyStage = new SkyStage('canvas-container');
     this.skyManager = new SkyManager(this.skyStage);
     SkyManager.updateSkyMoodByTime();
 
-    // 3. Initialize Monoplane Focus Engine
+    // 4. Initialize Monoplane Focus Engine
     this.monoplaneEngine = new MonoplaneEngine(this.skyStage);
 
-    // 4. Render World Planets & Asteroid B-612
+    // 5. Render World Planets & Asteroid B-612
     await this.renderWorldPlanets();
 
-    // 5. Setup Store Event Subscriptions & UI Listeners
+    // 6. Setup Store Subscriptions & HUD Listeners
     this.setupStoreSubscriptions();
     this.setupHUDListeners();
 
