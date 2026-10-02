@@ -1,0 +1,114 @@
+/* Color Palette & Custom Properties */
+:root {
+  --cosmic-indigo: #13192B;
+  --aged-vellum: #F6F1E5;
+  --golden-starlight: #F4D35E;
+  --sunset-vermilion: #E26D5C;
+  --sahara-sand: #E9C46A;
+  --twilight-slate: #6B8EA7;
+  --antique-brass: #8C6D46;
+  --ink-black: #1A181B;
+
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Nunito', -apple-system, sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --font-hand: 'Caveat', cursive;
+
+  --shadow-paper: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --filter-paper-edge: url('#watercolor-paper-edge');
+}
+
+/* Base Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--cosmic-indigo);
+  font-family: var(--font-sans);
+  color: var(--ink-black);
+  user-select: none;
+}
+
+/* Time-of-Day Dynamic Sky Gradients */
+body.sky-dawn {
+  background: linear-gradient(180deg, #2B1B2D 0%, #6B5B7B 100%);
+}
+
+body.sky-day {
+  background: linear-gradient(180deg, #1A2A3A 0%, #2B4C6F 100%);
+}
+
+body.sky-sunset {
+  background: linear-gradient(180deg, #1F1122 0%, #703D50 50%, #13192B 100%);
+}
+
+body.sky-midnight {
+  background: linear-gradient(180deg, #0B0E17 0%, #1B2234 100%);
+}
+
+/* Canvas Stage Layout */
+#canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Responsive View Switcher Display States */
+.view-active {
+  display: block !important;
+}
+
+.view-hidden {
+  display: none !important;
+}
+
+/* Parchment Surface Component Styling */
+.parchment-card {
+  background-color: var(--aged-vellum);
+  border-radius: 4px;
+  filter: var(--filter-paper-edge);
+  box-shadow: var(--shadow-paper);
+  border: 1px solid rgba(140, 109, 70, 0.2);
+  color: var(--ink-black);
+}
+
+/* Mobile Parchment Journal Container */
+#journal-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: var(--cosmic-indigo);
+  padding: 80px 16px 100px 16px;
+  overflow-y: auto;
+}
+
+.journal-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.journal-title {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--aged-vellum);
+}
+
+.journal-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-top: 16px;
+}
